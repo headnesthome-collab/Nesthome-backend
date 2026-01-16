@@ -11,8 +11,9 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "mkdir -p dist && npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --target=node20",
+    "build": "mkdir -p dist && npx esbuild server/index.ts --platform=node --bundle --format=esm --outfile=dist/index.js --packages=external --target=node20",
     "build:server": "npm run build",
+    "postbuild": "ls -la dist/ && test -f dist/index.js && echo '✅ Build successful - dist/index.js exists' || echo '❌ Build failed - dist/index.js not found'",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "lint": "tsc --noEmit"
