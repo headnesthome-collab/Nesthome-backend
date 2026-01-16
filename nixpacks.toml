@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_22"]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run build", "ls -la dist/", "test -f dist/index.js || exit 1"]
+cmds = ["npm run build", "echo 'Build completed. Checking output...'", "ls -la dist/", "test -f dist/index.js && echo '✅ dist/index.js exists' || (echo '❌ dist/index.js not found!' && exit 1)"]
 
 [start]
 cmd = "npm start"

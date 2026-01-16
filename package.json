@@ -11,10 +11,11 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "mkdir -p dist && npx esbuild server/index.ts --platform=node --bundle --format=esm --outfile=dist/index.js --packages=external --target=node20",
+    "build": "mkdir -p dist && npx esbuild server/index.ts --platform=node --bundle --format=esm --outfile=dist/index.js --packages=external --target=node20 && echo 'Build output:' && ls -lh dist/index.js",
     "build:server": "npm run build",
     "postbuild": "ls -la dist/ && test -f dist/index.js && echo '✅ Build successful - dist/index.js exists' || echo '❌ Build failed - dist/index.js not found'",
     "start": "NODE_ENV=production node dist/index.js",
+    "prestart": "test -f dist/index.js && echo '✅ Starting server with dist/index.js' || (echo '❌ dist/index.js not found! Build may have failed.' && exit 1)",
     "check": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
