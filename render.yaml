@@ -6,7 +6,6 @@ services:
     plan: free
     buildCommand: npm ci && npm run build
     startCommand: npm start
-    # Note: node_modules must be available at runtime for firebase-admin and @neondatabase/serverless
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
