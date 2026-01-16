@@ -1,6 +1,6 @@
 # Nesthome Backend API
 
-Production-ready backend API server for Nesthome website.
+Production-ready backend API server for Nesthome website and admin
 
 ## 🚀 Tech Stack
 
