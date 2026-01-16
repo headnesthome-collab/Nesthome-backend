@@ -11,14 +11,14 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
-    # Add other environment variables in Render dashboard:
-    # - ADMIN_PASSWORD
-    # - ALLOWED_ORIGINS
-    # - RESEND_API_KEY
-    # - RESEND_FROM_EMAIL
-    # - RESEND_TO_EMAIL
-    # - GOOGLE_SERVICE_ACCOUNT_EMAIL
-    # - GOOGLE_PRIVATE_KEY
-    # - GOOGLE_SPREADSHEET_ID
-    # - VITE_FIREBASE_* (if needed on server)
+        value: "10000"
+    # Add these environment variables in Render dashboard:
+    # - ADMIN_PASSWORD (required)
+    # - ALLOWED_ORIGINS (required, e.g., https://your-frontend.vercel.app)
+    # - RESEND_API_KEY (optional, for email notifications)
+    # - RESEND_FROM_EMAIL (optional)
+    # - RESEND_FROM_NAME (optional)
+    # - RESEND_TO_EMAIL (optional)
+    # - GOOGLE_SERVICE_ACCOUNT_EMAIL (optional, for Google Sheets)
+    # - GOOGLE_PRIVATE_KEY (optional, for Google Sheets)
+    # - GOOGLE_SPREADSHEET_ID (optional, for Google Sheets)
