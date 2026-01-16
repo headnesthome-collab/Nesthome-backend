@@ -1,0 +1,13 @@
+# Backend Environment Variables Template
+# Copy this to .env and fill in your values
+
+NODE_ENV=development
+PORT=5000
+ADMIN_PASSWORD=your_secure_password
+ALLOWED_ORIGINS=http://localhost:5173,https://your-frontend.vercel.app
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+RESEND_TO_EMAIL=your-email@gmail.com
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour key\n-----END PRIVATE KEY-----\n"
+GOOGLE_SPREADSHEET_ID=your_spreadsheet_id
