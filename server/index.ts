@@ -52,20 +52,40 @@ app.use(express.urlencoded({ extended: false }));
 
 // CORS configuration for separate frontend/backend deployment
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5000', 'http://localhost:5173'];
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:5000', 'http://localhost:5173', 'https://www.nesthome.co.in', 'https://nesthome.co.in'];
+
+// Log allowed origins for debugging
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-session-id');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
+  // Normalize origin (remove trailing slash)
+  const normalizedOrigin = origin ? origin.replace(/\/$/, '') : null;
+  
+  // Check if origin is allowed (exact match or normalized match)
+  const isAllowed = normalizedOrigin && (
+    allowedOrigins.includes(normalizedOrigin) || 
+    allowedOrigins.includes(origin || '')
+  );
+  
+  if (isAllowed) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  } else if (origin) {
+    // Log blocked origin for debugging
+    console.warn(`⚠️  CORS blocked origin: ${origin}`);
+  }
+  
+  // Always set these headers for preflight requests
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-session-id, X-Session-Id');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    return res.status(200).end();
   }
   
   next();
