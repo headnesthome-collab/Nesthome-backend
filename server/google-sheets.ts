@@ -182,3 +182,64 @@ export async function getSpreadsheetUrl(): Promise<string | null> {
     return null;
   }
 }
+
+// Fetch all leads from Google Sheets
+export async function getAllLeadsFromSheets(): Promise<LeadData[]> {
+  try {
+    const sheets = await getGoogleSheetsClient();
+    const sheetId = await getOrCreateSpreadsheet();
+    
+    if (!sheetId) {
+      console.warn('⚠️ No spreadsheet ID configured');
+      return [];
+    }
+
+    // Read all rows from the Leads sheet (skip header row)
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Leads!A2:G', // Skip header row
+    });
+
+    const rows = response.data.values || [];
+    
+    if (rows.length === 0) {
+      return [];
+    }
+
+    // Map rows to LeadData format
+    const leads: LeadData[] = rows
+      .filter((row) => row && row.length >= 4) // At least Date, Name, Mobile, City
+      .map((row, index) => {
+        try {
+          // Parse date from formatted string or use current date
+          let submittedAt = new Date().toISOString();
+          if (row[0]) {
+            const parsedDate = new Date(row[0]);
+            if (!isNaN(parsedDate.getTime())) {
+              submittedAt = parsedDate.toISOString();
+            }
+          }
+
+          return {
+            id: row[6] || `sheet-${index + 2}`, // Use Lead ID column or generate
+            name: row[1] || 'Unknown',
+            mobile: row[2] || '',
+            city: row[3] || 'Unknown',
+            timeline: row[4] || 'Not specified',
+            status: row[5] || 'New',
+            submittedAt: submittedAt,
+          };
+        } catch (error) {
+          console.warn('Error parsing lead row:', row, error);
+          return null;
+        }
+      })
+      .filter((lead): lead is LeadData => lead !== null);
+
+    console.log(`✅ Fetched ${leads.length} leads from Google Sheets`);
+    return leads;
+  } catch (error) {
+    console.error('Error fetching leads from Google Sheets:', error);
+    return [];
+  }
+}

@@ -162,6 +162,7 @@ app.use((req, res, next) => {
           "POST /api/admin/logout",
           "POST /api/admin/change-password",
           "GET /api/admin/verify",
+          "GET /api/leads",
           "POST /api/leads",
           "POST /api/sync-all-leads",
           "GET /api/spreadsheet-url",

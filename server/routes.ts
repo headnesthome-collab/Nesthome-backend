@@ -2,7 +2,8 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import crypto from "crypto";
 import { storage } from "./storage";
-import { syncLeadToGoogleSheets, getSpreadsheetUrl, type LeadData } from "./google-sheets";
+import { syncLeadToGoogleSheets, getSpreadsheetUrl, getAllLeadsFromSheets, type LeadData } from "./google-sheets";
+import { getAllLeadsFromFirebase } from "./firebase-admin";
 import { sendLeadNotification, sendContactMessage } from "./email-notifications";
 import {
   verifyPassword,
@@ -136,6 +137,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/verify", requireAuth, (req, res) => {
     res.json({ success: true, authenticated: true });
+  });
+
+  // API to get all leads from Firebase and Google Sheets
+  app.get("/api/leads", requireAuth, async (req, res) => {
+    try {
+      console.log("📥 Fetching all leads from Firebase and Google Sheets...");
+      
+      // Fetch from both sources in parallel
+      const [firebaseLeads, sheetsLeads] = await Promise.all([
+        getAllLeadsFromFirebase(),
+        getAllLeadsFromSheets(),
+      ]);
+
+      // Combine leads, prioritizing Firebase (more recent/authoritative)
+      // Use a Map to deduplicate by ID
+      const leadsMap = new Map<string, LeadData>();
+
+      // Add Firebase leads first
+      firebaseLeads.forEach((lead) => {
+        leadsMap.set(lead.id, lead);
+      });
+
+      // Add Google Sheets leads (only if not already in Firebase)
+      sheetsLeads.forEach((lead) => {
+        if (!leadsMap.has(lead.id)) {
+          leadsMap.set(lead.id, lead);
+        }
+      });
+
+      // Convert map to array and sort by date (newest first)
+      const allLeads = Array.from(leadsMap.values()).sort((a, b) => {
+        const dateA = new Date(a.submittedAt).getTime();
+        const dateB = new Date(b.submittedAt).getTime();
+        return dateB - dateA;
+      });
+
+      console.log(`✅ Returning ${allLeads.length} total leads (${firebaseLeads.length} from Firebase, ${sheetsLeads.length} from Sheets)`);
+      
+      res.json({
+        success: true,
+        leads: allLeads,
+        counts: {
+          total: allLeads.length,
+          fromFirebase: firebaseLeads.length,
+          fromSheets: sheetsLeads.length,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching leads:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch leads",
+        leads: [],
+      });
+    }
   });
 
   // API to save lead and sync to Google Sheets

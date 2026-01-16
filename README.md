@@ -83,7 +83,7 @@ GOOGLE_SPREADSHEET_ID=your_spreadsheet_id
 
 ### Admin Authentication
 - `POST /api/admin/login` - Admin login
-- `POST /api/admin/logout` - Admin logout  
+- `POST /api/admin/logout` - Admin logout
 - `POST /api/admin/change-password` - Change admin password (requires auth)
 - `GET /api/admin/verify` - Verify session (requires auth)
 
